@@ -16,6 +16,12 @@ class Playbasis
     private $apiKeyParam = null;
     private $respChannel = null;
 
+    /**
+     * Authentication procedure on playbasis
+     * @param $apiKey
+     * @param $apiSecret
+     * @return true if request is successful
+     */
     public function auth($apiKey, $apiSecret)
     {
         $this->apiKeyParam = "?api_key=$apiKey";
@@ -27,6 +33,12 @@ class Playbasis
         return $this->token != false && is_string($this->token);
     }
 
+    /**
+     * Renew the authentification
+     * @param $apiKey
+     * @param $apiSecret
+     * @return true if request is successful
+     */
     public function renew($apiKey, $apiSecret)
     {
         $this->apiKeyParam = "?api_key=$apiKey";
@@ -63,6 +75,24 @@ class Playbasis
         return false;
     }
 
+    /**
+     * Get information for a player. Fields include
+     * image
+     * email
+     * username
+     * exp
+     * level
+     * first_name
+     * last_name
+     * gender
+     * birth_date
+     * registered
+     * last_login
+     * last_logout
+     * cl_player_id
+     * @param $playerId
+     * @return
+     */
     public function player($playerId)
     {
         return $this->call("Player/$playerId", array('token' => $this->token));
@@ -78,6 +108,7 @@ class Playbasis
 
     /*
      * Get detailed information about a player, including points and badges
+     * @param $playerId
      */
     public function playerDetail($playerId)
     {
@@ -143,6 +174,10 @@ class Playbasis
         return $this->call_async("Player/$playerId/update", $updateData, $this->respChannel);
     }
 
+    /*
+     * Delete a player
+     * @param $playerId
+     */
     public function delete($playerId)
     {
         return $this->call("Player/$playerId/delete", array('token' => $this->token));
@@ -152,6 +187,10 @@ class Playbasis
         return $this->call_async("Player/$playerId/delete", array('token' => $this->token), $this->respChannel);
     }
 
+    /*
+     * Call login action on server
+     * @param $playerId
+     */
     public function login($playerId)
     {
         return $this->call("Player/$playerId/login", array('token' => $this->token));
@@ -161,6 +200,10 @@ class Playbasis
         return $this->call_async("Player/$playerId/login", array('token' => $this->token), $this->respChannel);
     }
 
+    /*
+     * Call logout action on server
+     * @param $playerId
+     */
     public function logout($playerId)
     {
         return $this->call("Player/$playerId/logout", array('token' => $this->token));
@@ -170,58 +213,108 @@ class Playbasis
         return $this->call_async("Player/$playerId/logout", array('token' => $this->token), $this->respChannel);
     }
 
+    /*
+     * Returns information about all point-based rewards that a player currently have.
+     * @param $playerId
+     */
     public function points($playerId)
     {
         return $this->call("Player/$playerId/points" . $this->apiKeyParam);
     }
 
+    /*
+     * Returns how much of specified the point-based reward a player currently have.
+     * @param $playerId
+     * @param $pointName
+     */
     public function point($playerId, $pointName)
     {
         return $this->call("Player/$playerId/point/$pointName" . $this->apiKeyParam);
     }
 
+    /*
+     * Returns reward a player currently have.
+     * @param $playerId
+     * @param $pointName
+     * @param $offset
+     * @param $limit
+     */
     public function pointHistory($playerId, $pointName='', $offset=0, $limit=20)
     {
         $string_query = '&offset='.$offset.'&limit='.$limit;
         if($pointName != '')$string_query = $string_query."&point_name=".$pointName;
-        return $this->call("Player/$playerId/point/$pointName/point_history" . $this->apiKeyParam . $string_query);
+        return $this->call("Player/$playerId/point_history" . $this->apiKeyParam . $string_query);
     }
 
+    /*
+     * Returns the time and action that a player last performed.
+     * @param $playerId
+     */
     public function actionLastPerformed($playerId)
     {
         return $this->call("Player/$playerId/action/time" . $this->apiKeyParam);
     }
 
+    /*
+     * Returns the last time that player performed the specified action.
+     * @param $playerId
+     * @param $actionName
+     */
     public function actionLastPerformedTime($playerId, $actionName)
     {
         return $this->call("Player/$playerId/action/$actionName/time" . $this->apiKeyParam);
     }
 
+    /*
+     * Returns the number of times that a player has performed the specified action.
+     * @param $playerId
+     * @param $actionName
+     */
     public function actionPerformedCount($playerId, $actionName)
     {
         return $this->call("Player/$playerId/action/$actionName/count" . $this->apiKeyParam);
     }
 
+    /*
+     * Returns information about all the badges that a player has earned.
+     * @param $playerId
+     */
     public function badgeOwned($playerId)
     {
         return $this->call("Player/$playerId/badge" . $this->apiKeyParam);
     }
 
+    /*
+     * Returns list of top players according to specified point type.
+     * @param $rankedBy
+     * @param $limit
+     */
     public function rank($rankedBy, $limit)
     {
         return $this->call("Player/rank/$rankedBy/$limit" . $this->apiKeyParam);
     }
 
+    /*
+     * Returns list of top players.
+     * @param $limit
+     */
     public function ranks($limit)
     {
         return $this->call("Player/ranks/$limit" . $this->apiKeyParam);
     }
 
+    /*
+     * Returns information of all levels.
+     */
     public function levels()
     {
         return $this->call("Player/levels" . $this->apiKeyParam);
     }
 
+    /*
+     * Returns information about specified level.
+     * @param $lv
+     */
     public function level($level)
     {
         return $this->call("Player/level/$level" . $this->apiKeyParam);
@@ -237,6 +330,10 @@ class Playbasis
         return $this->call("Player/$playerId/badge/$badgeId/redeem", array('token' => $this->token));
     }
 
+    /*
+     * Returns information about all the goods list that a player has redeem.
+     * @param $playerId player id as used in client's website
+     */
     public function goodsOwned($playerId)
     {
         return $this->call("Player/$playerId/goods" . $this->apiKeyParam);
@@ -252,26 +349,43 @@ class Playbasis
         return $this->call("Player/quest". $this->apiKeyParam . "&player_id=" . $playerId);
     }
 
+    /*
+     * Returns information about all available badges for the current site.
+     */
     public function badges()
     {
         return $this->call("Badge" . $this->apiKeyParam);
     }
 
+    /*
+     * Returns information about the badge with the specified id.
+     * @param $badgeId
+     */
     public function badge($badgeId)
     {
         return $this->call("Badge/$badgeId" . $this->apiKeyParam);
     }
 
+    /*
+     * Returns information about all available goods for the current site.
+     */
     public function goodsList()
     {
         return $this->call("Goods" . $this->apiKeyParam);
     }
 
+    /*
+     * Returns information about the goods with the specified id.
+     * @param goodId
+     */
     public function goods($goodsId)
     {
         return $this->call("Goods/$goodsId" . $this->apiKeyParam);
     }
 
+    /**
+     * Returns names of actions that can trigger game rules within a client’s website.
+     */
     public function actionConfig()
     {
         return $this->call("Engine/actionConfig" . $this->apiKeyParam);
@@ -301,16 +415,28 @@ class Playbasis
         ), $optionalData), $this->respChannel);
     }
 
+    /**
+     * Returns information about all quest for the current site.
+     */
     public function quests()
     {
         return $this->call("Quest" . $this->apiKeyParam);
     }
 
+    /*
+     * Returns information about the quest with the specified id.
+     * @param $questId
+     */
     public function quest($questId)
     {
         return $this->call("Quest/$questId" . $this->apiKeyParam);
     }
 
+    /*
+     * Returns information about mission with the specified id.
+     * @param $questId
+     * @param $missionId
+     */
     public function mission($questId, $missionId)
     {
         return $this->call("Quest/$questId/mission/$missionId" . $this->apiKeyParam);
